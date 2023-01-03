@@ -255,7 +255,7 @@ _____________________________________
 _____________________________________
 ```
 
-There should be 4 exceptions caught but `viwerr` can only catch 2 because we cannot know if a variable is being writen to or read from in `C`.
+There should be 4 exceptions caught but `viwerr` can only catch 2 because we cannot know if a variable is being written to or read from in `C`.
 
 # External libraries used...
 
