@@ -159,6 +159,10 @@
 #include <stdarg.h>
 #include <limits.h>
 #include <stdbool.h>
+#include "errorname.h"
+
+#define VIWERR_SUBSCRIPTION_ERRNO
+// #undef VIWERR_SUBSCRIPTION_ERRNO
 
 #ifndef VIWERR_INCLUDE
 #define VIWERR_INCLUDE
@@ -166,6 +170,11 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+int * viwerr_errno_redefine(
+        const char * file, 
+        int line 
+);
 
 /**
  * @brief 
@@ -324,7 +333,7 @@ extern "C" {
  * Amount of packages that are constructed when
  * the program is initalized.
  */
-#define VIWERR_PACKAGE_AMOUNT (size_t)4
+#define VIWERR_PACKAGE_AMOUNT (size_t)20
 
 /**
  * \ingroup String_Sizes
@@ -892,12 +901,14 @@ _viwerr_list(
         }
 
 #ifdef VIWERR_DEBUG_MODE
-        printf("viwerr-debug: number of arguments passed to "
+        fprintf(strderr,
+                "viwerr-debug: number of arguments passed to "
                "viwerr_list = %d\n", cnt);
-        printf("viwerr-debug: static values:\n"
-        "\t packageinfo.newest = %d\n"
-        "\t packageinfo.amount = %d\n",
-        packageinfo.newest, packageinfo.amount);
+        fprintf(stderr,
+                "viwerr-debug: static values:\n"
+                "\t packageinfo.newest = %d\n"
+                "\t packageinfo.amount = %d\n",
+                packageinfo.newest, packageinfo.amount);
 #endif
 
         if( arg & VIWERR_PUSH ) {
@@ -1025,6 +1036,10 @@ _viwerr_list(
         } else if( arg & VIWERR_POP  
                ||  arg & VIWERR_PRINT 
                ||  arg & VIWERR_OCCURED ) {
+                
+#ifdef VIWERR_SUBSCRIPTION_ERRNO
+                if((*viwerr_errno_redefine(file,line)) == 0){};
+#endif
 
                 /**
                  * @brief 
@@ -1057,8 +1072,10 @@ _viwerr_list(
                         if( cnt < 1 ) {
 
                                 fprintf(stderr, 
-                                "viwerr: VIWERR_POP with a argument from the"
-                                " VIWERR_BY... family requires 1 argument:\n"
+                                "viwerr: VIWERR_POP with a"
+                                " argument from the"
+                                " VIWERR_BY... family"
+                                " requires 1 argument:\n"
                                 "        "
                                 "A viwerr_package pointer that"
                                 " contains the values we will filter"
@@ -1083,7 +1100,8 @@ _viwerr_list(
                         if( filter == NULL ) {
 
                                 fprintf(stderr, 
-                                "viwerr: VIWERR_POP with a argument from the"
+                                "viwerr: VIWERR_POP with a"
+                                " argument from the"
                                 " VIWERR_BY... family"
                                 " requires 1 NON NULL argument:\n"
                                 "        "
@@ -1101,6 +1119,14 @@ _viwerr_list(
                         }
 
                 }
+
+                /**
+                 * @brief 
+                 * We call errno here to see what it contains.
+                 */
+                #ifdef VIWERR_SUBSCRIPTION_ERRNO
+
+                #endif
 
                 /**
                  * @brief 
@@ -1190,6 +1216,7 @@ _viwerr_list(
                 /**
                  * @brief 
                  * Update static information and send package.
+                 * VIWERR_PRINT & VIWERR_POP
                  */
                 newest_package->flag.returned = 
                         viwerr_package_used.flag.returned;
@@ -1201,7 +1228,7 @@ _viwerr_list(
                 return newest_package;
                 
 
-        } else if( VIWERR_FLUSH & arg ) {
+        } else if( arg & VIWERR_FLUSH ) {
 
                 /**
                  * @brief 
@@ -1232,8 +1259,10 @@ _viwerr_list(
                         if( cnt < 1 ) {
 
                                 fprintf(stderr, 
-                                "viwerr: VIWERR_FLUSH with a argument from the"
-                                " VIWERR_BY... family requires 1 argument:\n"
+                                "viwerr: VIWERR_FLUSH with a"
+                                " argument from the"
+                                " VIWERR_BY... family"
+                                " requires 1 argument:\n"
                                 "        "
                                 "A viwerr_package pointer that"
                                 " contains the values we will filter"
@@ -1258,8 +1287,8 @@ _viwerr_list(
                         if( filter == NULL ) {
 
                                 fprintf(stderr, 
-                                "viwerr: VIWERR_FLUSH with a argument from the"
-                                " VIWERR_BY... family"
+                                "viwerr: VIWERR_FLUSH with a argument"
+                                " from the VIWERR_BY... family"
                                 " requires 1 NON NULL argument:\n"
                                 "        "
                                 "A viwerr_package pointer that"
@@ -1343,11 +1372,121 @@ _viwerr_list(
  */
 #define viwerr(arg, ...)                         \
         _viwerr_list(                            \
-                arg,                             \
+                arg/*|(errno<<64)*/,                 \
                 __FILE__,                        \
                 __LINE__,                        \
                 VIWERR_VARCNT_NARG(__VA_ARGS__), \
                 __VA_ARGS__)
+
+/**
+ * @def @a viwerr_file(4)
+ *      
+ *      @brief viwerr_file(4) is viwerr(2) with file and line
+ *      being insertable.
+ * 
+ */
+#define viwerr_file(arg, file, line, ...)        \
+        _viwerr_list(                            \
+                arg,                             \
+                file,                            \
+                line,                            \
+                VIWERR_VARCNT_NARG(__VA_ARGS__), \
+                __VA_ARGS__)
+
+#define VIWERR_ERRNO_FLUSH
+
+/**
+ * @fn @c viwerr_errno_redefine(2)
+ *      
+ *      @brief This function allows viwerr to be updated
+ *      on the state of errno every time errno is called.
+ *      Due to the C preprocessor reading files line by line,
+ *      the errno calls inside this function are of the orginal
+ *      errno from <errno.h>. Afterwards errno is redefined
+ *      to call this function instead of whatever was
+ *      inside of errno before. Due to this function returning the 
+ *      original errno macro, we can use the normal errno
+ *      syntax to read and write values to errno.
+ *      viwerr is kind of late to the party when it comes to
+ *      reading values from errno because we can't make a macro
+ *      that keeps the original syntax and also calls a function
+ *      after the errno value was called for 
+ *      reading or writing. Because of that
+ *      viwerr is one read behind errno, which means if errno
+ *      is changed viwerr won't be notified until errno is called
+ *      again. This can be easily mitigated by calling this
+ *      function inside of viwerr but the problem lies not in
+ *      the latency but in the fact that we cannot determine
+ *      on any call to errno wether the value was written to or
+ *      read from. Because of that if we have multiple functions
+ *      setting errno to the same value we will only store the 
+ *      errno value from the first function that set it to that
+ *      particular value.
+ * 
+ *      @returns &(errno) <- errno before it was redefined.
+ * 
+ */
+int * viwerr_errno_redefine(
+        const char * file, 
+        int line )
+{
+
+        static struct {
+
+                int code;
+                char * file;
+                int line;
+
+        } previous = {
+                .code = 0,
+                .file = (char*)"",
+                .line = 0
+        };
+
+        /**
+         * @brief @b IMPORTANT
+         * The reason this works is because we call errno
+         * before we redefine it. This means that every call of
+         * errno is the errno defined by <errno.h>. Afterwards
+         * when we redefine errno every call of errno that is:
+         * 1. Not from a function defined in a static or dynamic
+         * library,
+         * 2. In a file or function included/defined after we 
+         * include <viwerr.h>;
+         * will use the new version that notifies viwerr to any
+         * errors that may have occured every time it is called
+         * either for reading or writing. 
+         */
+        if(errno == 0
+        || errno == previous.code) {
+                
+                previous.code = errno;
+                previous.file = (char*)file;
+                previous.line = line;
+                return &errno;
+        
+        }
+
+        viwerr_file(VIWERR_PUSH, 
+        (char*)previous.file, previous.line, &(viwerr_package){
+                .code = errno,
+                .name = (char*)errnoname(errno),
+                .message = strerror(errno),
+                .group = (char*)"errno"
+        });
+        
+        previous.code = errno;
+        previous.file = (char*)file;
+        previous.line = line;
+        return &errno;
+
+}
+
+
+#ifdef VIWERR_SUBSCRIPTION_ERRNO
+        #undef errno
+        #define errno (*viwerr_errno_redefine(__FILE__,__LINE__))
+#endif /** @c VIWERR_SUBSCRIPTION_ERRNO */
 
 #ifdef __cplusplus
 }
