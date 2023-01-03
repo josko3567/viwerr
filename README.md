@@ -1,6 +1,6 @@
 # Description
 
-`viwerr.h` is a simple error catching library, compatible with errno.
+`viwerr.h` is a simple error catching library, compatible with `errno`.
 
 # Syntax & Logic
 
