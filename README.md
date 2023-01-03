@@ -146,7 +146,7 @@ viwerr(VIWERR_PUSH, &(viwerr_package){
 
 /* Check if errno was set! */
 if(viwerr(VIWERR_OCCURED|VIWERR_BY_GROUP, &(viwerr_package){
-        .group = "errno"
+        .group = (char*)"errno"
 })) {
 
         printf("errno was set!");
@@ -178,11 +178,11 @@ errno = ENOMEM;
 errno = EINVAL;
 
 while(viwerr(VIWERR_OCCURED|VIWERR_BY_GROUP, &(viwerr_package){
-        .group = "errno"
+        .group = (char*)"errno"
 })) {
 
         viwerr(VIWERR_PRINT,|VIWERR_BY_GROUP, &(viwerr_package){
-                .group = "errno"
+                .group = (char*)"errno"
         });
 
 }
@@ -221,11 +221,11 @@ errno = EINVAL;
 errno = EINVAL;
 
 while(viwerr(VIWERR_OCCURED|VIWERR_BY_GROUP, &(viwerr_package){
-        .group = "errno"
+        .group = (char*)"errno"
 })) {
 
         viwerr(VIWERR_PRINT,|VIWERR_BY_GROUP, &(viwerr_package){
-                .group = "errno"
+                .group = (char*)"errno"
         });
 
 }
