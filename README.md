@@ -4,7 +4,7 @@
 
 # Syntax & Logic
 
-## Packages...
+### Packages...
 
 `viwerr` operates with packets called `viwerr_package`'s that store our error information:
   - Error code. ➔ `.code = EINVAL` 
@@ -27,7 +27,7 @@ For example this is a package `ENOMEM` would push:
 
 `viwerr` automaticly stores the line and file it was called from to `.line` and `.file`.
 
-## `viwerr()` function...
+### `viwerr()` function...
 
 The basic syntax of the function `viwerr` is as follows:
 
@@ -165,7 +165,8 @@ errno was not set!
 
 We can use multiple `VIWERR_BY_...` arguments in one `viwerr` call.
 
-## `errno` compatiblity...
+### `errno` compatiblity...
+
 If `VIWERR_SUBSCRIPTION_ERRNO` is defined before including `viwerr.h` as follows...
 ```C
 #define VIWERR_SUBSCRIPTION_ERRNO
