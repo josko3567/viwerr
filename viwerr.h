@@ -2,8 +2,8 @@
  *                                                        *
  *                                                        *
  * viwerr.h is a "advanced" error catching library.       *
- * Copyright (C) 2022 josko3567                           *
- * <jkrianovic123@gmail.com>                              *
+ * Copyright (C) 2022 Joško Križanović                    *
+ * <jkriza02@fesb.com>                                    *
  *                                                        *
  * This library is free software; you can redistribute    *
  * it and/or modify it under the terms of the GNU Lesser  *
@@ -36,8 +36,8 @@
  *                                                        *
  *                                                        *
  * AUTHOR:                                                *
- *      NAME:  josko3567 <github.com>                     *
- *      EMAIL: jkrianovic123@gmail.com                    *
+ *      NAME:  Joško Križanović                           *
+ *      EMAIL: jkriza02@fesb.com                          *
  *                                                        *
  *                                                        *
  * DATE:                                                  *
@@ -598,7 +598,21 @@ _viwerr_list_init(
 }
 
 #ifdef __GNUC__
-
+/**
+ * @fn @c _viwerr_list_free(0)
+ * 
+ *      @brief  Destructor for the memory _viwerr_list_init() creates,
+ *      even if it is not created the call to _viwerr_list_init()
+ *      will make memory that we need to destroy. Also it is not possible
+ *      to fail a free since if _viwerr_list_init will exit out of the
+ *      program if it encounters a error during allocation.
+ * 
+ *      @param None.
+ * 
+ *      @return Nothing.
+ * 
+ *      @exception None.
+ */
 void
 __attribute__((destructor))
 _viwerr_list_free(
@@ -622,7 +636,6 @@ _viwerr_list_free(
         return;
 
 }
-
 #endif
 
 /**
