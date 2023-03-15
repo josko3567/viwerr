@@ -64,7 +64,7 @@
  * other errors with a general method.                    *
  *                                                        *
  *                                                        *
- * viwerr.h can be used in production but it's I mostly   *
+ * viwerr.h can be used in production but I mostly        *
  * use it for debugging projects.                         *
  *                                                        *
  *                                                        *
@@ -125,10 +125,10 @@
  * 567     14.12.2022      contained functions created    *
  *                         Only VIWERR_PUSH & POP work    *
  * ------  --------------  ----------------------------   *
- * josko3  V1a             Added viwerr macro and added
- * 567                     new arguments VIWERR_PRINT
- *                         & VIWERR_OCCURED.
- *                                *
+ * josko3  V1a             Added viwerr macro and added   *
+ * 567                     new arguments VIWERR_PRINT     *
+ *                         & VIWERR_OCCURED.              *
+ *                                                        *
  * ------  --------------  ----------------------------   *
  * SIERR:                                                 *
  * Author  Release & Date  Description of modifications   *
@@ -148,7 +148,12 @@
  * josko3  V1.2            Added destructor function      *
  * 567     Date : ?                                       *
  * ------  --------------  ----------------------------   *
- *                                                        *
+ * josko3  V1.2 fix1       Fixed viwerr exiting program   *
+ * 567     Date : 27.2.23  upon first call to viwerr,     *
+ *                         the _viwerr_init() function    *
+ *                         exits if errno was set to      *
+ *                         ENOMEM before hand.            *
+ * ------  --------------  ----------------------------   *
  *                                                        *
  *********************************************************/
 
@@ -522,6 +527,8 @@ _viwerr_list_init(
         
         if( array == NULL ) {
 
+                //errno = 0;
+
                 array = (viwerr_package**)malloc(
                         sizeof(viwerr_package) * VIWERR_PACKAGE_AMOUNT
                 );
@@ -531,7 +538,7 @@ _viwerr_list_init(
                  * Exit with code VIWERR_EXIT_CODE if we failed
                  * to allocate memory for our error packages.
                  */
-                if( array == NULL || errno == ENOMEM ) {
+                if( array == NULL ) {
                         exit(VIWERR_EXIT_CODE);
                 }
 
@@ -573,8 +580,13 @@ _viwerr_list_init(
                                 sizeof(viwerr_package)
                         );      
 
-                        if( errno == ENOMEM ){
-                                exit(VIWERR_EXIT_CODE);
+                        if( array[i]->name    == NULL 
+                        ||  array[i]->message == NULL
+                        ||  array[i]->group   == NULL
+                        ||  array[i]->file    == NULL ) {
+
+                            exit(VIWERR_EXIT_CODE);
+
                         }
 
                 }
@@ -584,6 +596,34 @@ _viwerr_list_init(
         return array;
 
 }
+
+#ifdef __GNUC__
+
+void
+__attribute__((destructor))
+_viwerr_list_free(
+    void )
+{
+        
+        viwerr_package ** array = _viwerr_list_init();
+
+        int i;
+        for( i = 0; i < (int)VIWERR_PACKAGE_AMOUNT; i++ ) {
+
+                free(array[i]->name);
+                free(array[i]->message);
+                free(array[i]->group);
+                free(array[i]->file);
+                free(array[i]);
+
+        }
+
+        free(array);
+        return;
+
+}
+
+#endif
 
 /**
  * @fn @c _viwerr_popcnt(1)
@@ -1122,14 +1162,6 @@ _viwerr_list(
                         }
 
                 }
-
-                /**
-                 * @brief 
-                 * We call errno here to see what it contains.
-                 */
-                #ifdef VIWERR_SUBSCRIPTION_ERRNO
-
-                #endif
 
                 /**
                  * @brief 
