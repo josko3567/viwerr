@@ -54,12 +54,17 @@ _viwerr_list_init(
                                         VIWERR_FILENAME_SIZE,
                                         sizeof(char)),
                                 .line = viwerr_package_empty.line,
-                                .flag.returned = 
-                                        viwerr_package_empty.flag.returned,
-                                .flag.printed  = 
-                                        viwerr_package_empty.flag.printed,
-                                .flag.contains = 
-                                        viwerr_package_empty.flag.contains,
+				.flag = {
+					.returned = viwerr_package_empty.flag.returned,
+					.printed  = viwerr_package_empty.flag.printed,
+					.contains = viwerr_package_empty.flag.contains,
+				}
+                                // .flag.returned = 
+                                        // viwerr_package_empty.flag.returned,
+                                // .flag.printed  = 
+                                        // viwerr_package_empty.flag.printed,
+                                // .flag.contains = 
+                                        // viwerr_package_empty.flag.contains,
                                 }, 
                                 sizeof(viwerr_package)
                         );      
