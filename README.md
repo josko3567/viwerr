@@ -167,12 +167,7 @@ We can use multiple `VIWERR_BY_...` arguments in one `viwerr` call.
 
 ### `errno` compatiblity...
 
-If `VIWERR_SUBSCRIPTION_ERRNO` is defined before including `viwerr.h` as follows...
-```C
-#define VIWERR_SUBSCRIPTION_ERRNO
-#include "viwerr.h"
-```
-...`viwerr` will track all changes to the errno variable, albeit not as precise as id like (reason why after example):
+If `VIWERR_SUBSCRIPTION_ERRNO` is defined in `viwerr.h` before compiling the project with `make`, `viwerr` will track all changes to the errno variable, albeit not as precise as id like (reason why after example):
 
 ```C
 errno = ENOMEM;
@@ -225,7 +220,7 @@ while(viwerr(VIWERR_OCCURED|VIWERR_BY_GROUP, &(viwerr_package){
         .group = (char*)"errno"
 })) {
 
-        viwerr(VIWERR_PRINT,|VIWERR_BY_GROUP, &(viwerr_package){
+        viwerr(VIWERR_PRINT|VIWERR_BY_GROUP, &(viwerr_package){
                 .group = (char*)"errno"
         });
 
@@ -257,6 +252,38 @@ _____________________________________
 ```
 
 There should be 4 exceptions caught but `viwerr` can only catch 2 because we cannot know if a variable is being written to or read from in `C`.
+
+If we pass a `viwerr_package` via. `viwerr(VIWERR_PUSH, ...)`, and that package is of the group `"errno"`. Depending on the `.code` value the `.message` & `.name` part are automatically filled up & the given package code is written to `errno` directly.
+
+```C
+viwerr(VIWERR_PUSH, &(viwerr_package){
+  .code = EINVAL,
+  .group = (char*)"errno"
+
+});
+
+printf("errno was set to %d", errno);
+
+// Print all errors.
+while(viwerr(VIWERR_OCCURED, NULL) != NULL) {
+        viwerr(VIWERR_PRINT, NULL);
+}
+```
+
+```
+> cc test.c
+> ./a.out
+errno was set to 22
+_____________________________________
+  VIWERR CAUGHT AN EXCEPTION: 
+        code     : 22
+        name     : EINVAL
+        message  : Invalid argument
+        group    : errno
+        file     : test/test.c
+        line     : 40
+_____________________________________
+```
 
 # External libraries used...
 

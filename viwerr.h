@@ -166,7 +166,6 @@
 #include <stdbool.h>
 
 #define VIWERR_SUBSCRIPTION_ERRNO
-// #undef VIWERR_SUBSCRIPTION_ERRNO
 
 #ifndef VIWERR_INCLUDE
 #define VIWERR_INCLUDE
@@ -703,12 +702,20 @@ int * viwerr_errno_redefine(
         int line 
 );
 
+/**
+ * @brief 
+ * If viwerr(VIWERR_PUSH, ...) pushed a errno value
+ * viwerr_errno_redefine will ignore the new value as
+ * it is already written.
+ */
+bool viwerr_errno_ignore_new(bool set);
+
 /* SPDX-License-Identifier: 0BSD */
 /* Copyright 2019 Alexander Kozhevnikov <mentalisttraceur@gmail.com> */
 char const * errnoname(int errno_);
 
 #ifndef REMOVE_ERRNO_REDEFINE
-#ifdef VIWERR_SUBSCRIPTION_ERRNO
+#if defined(VIWERR_SUBSCRIPTION_ERRNO) && !defined(VIWERR_REMOVE_FOR_OBJ_COMP)
         #undef errno
         #define errno (*viwerr_errno_redefine(__FILE__,__LINE__))
 #endif /** @c VIWERR_SUBSCRIPTION_ERRNO */

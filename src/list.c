@@ -1,3 +1,4 @@
+#define VIWERR_REMOVE_FOR_OBJ_COMP
 #include "../viwerr.h"
 viwerr_package*
 _viwerr_list(
@@ -21,6 +22,20 @@ _viwerr_list(
                 .amount = 0
 
         };
+
+        /**
+         * @brief 
+         * Update once upon entering, viwerr_errno_redefine
+         * calls _viwerr_list in of it self so we have to
+         * be vary not to stack overflow by accident.
+         */
+        static bool errno_update = true;
+        if(errno_update == true){
+                errno_update = false;
+                viwerr_errno_redefine(file,line);
+        }
+        errno_update = true;
+
 
         /**
          * @brief 
@@ -208,15 +223,29 @@ _viwerr_list(
                         (size_t)packageinfo.amount >= VIWERR_PACKAGE_AMOUNT ?
                                 0 : 1;
 
+                
+#ifdef VIWERR_SUBSCRIPTION_ERRNO
+                if(!strncmp(packages[index]->group, "errno", 5)) {
+                        errno = packages[index]->code;
+                        packages[index]->name = (char*)errnoname(
+                                packages[index]->code
+                        );
+                        packages[index]->message = strerror(
+                                packages[index]->code
+                        );
+                        viwerr_errno_ignore_new(true);
+
+                }
+#endif
                 return package;
 
         } else if( arg & VIWERR_POP  
                ||  arg & VIWERR_PRINT 
                ||  arg & VIWERR_OCCURED ) {
                 
-#ifdef VIWERR_SUBSCRIPTION_ERRNO
-                if((*viwerr_errno_redefine(file,line)) == 0){};
-#endif
+// #ifdef VIWERR_SUBSCRIPTION_ERRNO
+//                 if((*viwerr_errno_redefine(file,line)) == 0){};
+// #endif
 
                 /**
                  * @brief 

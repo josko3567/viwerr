@@ -1,6 +1,27 @@
 #define REMOVE_ERRNO_REDEFINE
 #include "../viwerr.h"
 #include <errno.h>
+#include <stdbool.h>
+
+bool viwerr_errno_ignore_new(
+        bool set )
+{
+        static bool __set = false;
+        if(set){
+
+                __set = true;
+
+        } else {
+
+                if(__set == true){
+                        __set = false;
+                        return true;
+                }
+
+        }
+        return false;
+}
+
 int * viwerr_errno_redefine(
         const char * file, 
         int line )
@@ -42,14 +63,15 @@ int * viwerr_errno_redefine(
         
         }
 
-        viwerr_file(VIWERR_PUSH, 
-        (char*)previous.file, previous.line, &(viwerr_package){
-                .code = errno,
-                .name = (char*)errnoname(errno),
-                .message = strerror(errno),
-                .group = (char*)"errno"
-        });
-        
+        if(viwerr_errno_ignore_new(false) != true){
+                viwerr_file(VIWERR_PUSH, 
+                (char*)previous.file, previous.line, &(viwerr_package){
+                        .code = errno,
+                        .name = (char*)errnoname(errno),
+                        .message = strerror(errno),
+                        .group = (char*)"errno"
+                });
+        }
         previous.code = errno;
         previous.file = (char*)file;
         previous.line = line;
