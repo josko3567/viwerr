@@ -208,11 +208,18 @@ _____________________________________
 _____________________________________
 ```
 
-The only problem with it is if there are multiple calls that set errno to the same specific value we cannot report on them, we only can only know where errno was set to some specific value first.
+The only problem with it is when there are multiple calls that set errno to the same value it cannot detect them. Only when the value of errno is changed from one nonequal value to another can the `viwerr_errno_redefine()` function detect the change and report on it.
 
 ```C
+/*
+viwerr_errno_redefine() will only detect when first setting errno from 0 to ENOMEM, then afterwards when setting it from ENOMEM to EINVAL.
+*/
 errno = ENOMEM;
 errno = ENOMEM;
+errno = ENOMEM;
+errno = ENOMEM;
+errno = EINVAL;
+errno = EINVAL;
 errno = EINVAL;
 errno = EINVAL;
 

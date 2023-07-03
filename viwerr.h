@@ -307,6 +307,7 @@ extern "C" {
 #define VIWERR_BY_NAME       1<<12
 #define VIWERR_BY_MESSAGE    1<<13
 #define VIWERR_BY_GROUP      1<<14
+#define VIWERR_NO_ERRNO_TRIGGER 1<<15
 
 /**
  * @brief 

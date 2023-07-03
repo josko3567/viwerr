@@ -30,7 +30,7 @@ _viwerr_list(
          * be vary not to stack overflow by accident.
          */
         static bool errno_update = true;
-        if(errno_update == true){
+        if(errno_update == true && !(arg & VIWERR_NO_ERRNO_TRIGGER)){
                 errno_update = false;
                 viwerr_errno_redefine(file,line);
         }
@@ -225,7 +225,8 @@ _viwerr_list(
 
                 
 #ifdef VIWERR_SUBSCRIPTION_ERRNO
-                if(!strncmp(packages[index]->group, "errno", 5)) {
+                if(!strncmp(packages[index]->group, "errno", 5)
+                && !(arg & VIWERR_NO_ERRNO_TRIGGER)) {
                         errno = packages[index]->code;
                         packages[index]->name = (char*)errnoname(
                                 packages[index]->code

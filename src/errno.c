@@ -64,7 +64,7 @@ int * viwerr_errno_redefine(
         }
 
         if(viwerr_errno_ignore_new(false) != true){
-                viwerr_file(VIWERR_PUSH, 
+                viwerr_file(VIWERR_PUSH|VIWERR_NO_ERRNO_TRIGGER, 
                 (char*)previous.file, previous.line, &(viwerr_package){
                         .code = errno,
                         .name = (char*)errnoname(errno),
