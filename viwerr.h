@@ -165,7 +165,6 @@
 #include <limits.h>
 #include <stdbool.h>
 
-#define VIWERR_SUBSCRIPTION_ERRNO
 
 #ifndef VIWERR_INCLUDE
 #define VIWERR_INCLUDE
@@ -173,6 +172,8 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+#define VIWERR_SUBSCRIPTION_ERRNO
 
 /**
  * @brief 
@@ -307,6 +308,12 @@ extern "C" {
 #define VIWERR_BY_NAME       1<<12
 #define VIWERR_BY_MESSAGE    1<<13
 #define VIWERR_BY_GROUP      1<<14
+
+/**
+ * @brief 
+ * Remove extra call in _viwerr_list() to viwerr_errno_redefine()
+ * if we are calling from viwerr_errno_redefine()
+ */
 #define VIWERR_NO_ERRNO_TRIGGER 1<<15
 
 /**
