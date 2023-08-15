@@ -183,6 +183,9 @@ extern "C" {
  * 
  * This is the only thing i have no idea how to explain other
  * than black magic & it works.
+ * 
+ * After using this argument counter ive come to realize that
+ * it just counts the , symbols xD.
  */
 #define VIWERR_VARCNT_NARG(...) \
         VIWERR_VARCNT_NARG_(__VA_ARGS__,VIWERR_VARCNT_PP_RSEQ_N())
@@ -300,7 +303,7 @@ extern "C" {
  * For @b viwerr(1,2) only.
  * Acts exactly as VIWERR_POP but when returning the package it will
  * not update any static information about the package amount, newest
- * packages & the flag.returned value if we were to return a package.
+ * packages & the flag.returned value if viwerr were to return a package.
  */
 #define VIWERR_OCCURED       1<<5
 
@@ -339,7 +342,7 @@ extern "C" {
  * Amount of packages that are constructed when
  * the program is initalized.
  */
-#define VIWERR_PACKAGE_AMOUNT (size_t)20
+#define VIWERR_PACKAGE_AMOUNT (size_t)128
 
 /**
  * \ingroup String_Sizes

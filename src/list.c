@@ -36,6 +36,7 @@ _viwerr_list(
         }
         errno_update = true;
 
+        
 
         /**
          * @brief 
@@ -60,9 +61,11 @@ _viwerr_list(
                                 " VIWERR-INTERLNAL-CALL:\n"
                                 "viwerr_list: requires 1 of the following"
                                 " arguments:\n"
-                                "\tVIWERR_PUSH, \n"
-                                "\tVIWERR_POP,  \n"
-                                "\tVIWERR_FLUSH \n"
+                                "\tVIWERR_PUSH,  \n"
+                                "\tVIWERR_POP,   \n"
+                                "\tVIWERR_FLUSH, \n"
+                                "\tVIWERR_PRINT, \n"
+                                "\tVIWERR_OCCURED\n"
                                 " File: %s\n" 
                                 " Line: %d\n"
                                 "viwerr file fprintf called at:\n"
@@ -78,7 +81,9 @@ _viwerr_list(
                                 "following arguments one at time:\n"
                                 "\tVIWERR_PUSH, \n"
                                 "\tVIWERR_POP,  \n"
-                                "\tVIWERR_FLUSH \n"
+                                "\tVIWERR_FLUSH,\n"
+                                "\tVIWERR_PRINT, \n"
+                                "\tVIWERR_OCCURED\n"
                                 " File: %s\n" 
                                 " Line: %d\n"
                                 "viwerr file fprintf called at:\n"
