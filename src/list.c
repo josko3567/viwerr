@@ -233,12 +233,14 @@ _viwerr_list(
                 if(!strncmp(packages[index]->group, "errno", 5)
                 && !(arg & VIWERR_NO_ERRNO_TRIGGER)) {
                         errno = packages[index]->code;
-                        packages[index]->name = (char*)errnoname(
-                                packages[index]->code
-                        );
-                        packages[index]->message = strerror(
-                                packages[index]->code
-                        );
+                        if(package->name == NULL)
+                                packages[index]->name = (char*)errnoname(
+                                        packages[index]->code
+                                );
+                        if(package->message == NULL)
+                                packages[index]->message = strerror(
+                                        packages[index]->code
+                                );
                         viwerr_errno_ignore_new(true);
 
                 }
@@ -249,10 +251,6 @@ _viwerr_list(
                ||  arg & VIWERR_PRINT 
                ||  arg & VIWERR_OCCURED ) {
                 
-// #ifdef VIWERR_SUBSCRIPTION_ERRNO
-//                 if((*viwerr_errno_redefine(file,line)) == 0){};
-// #endif
-
                 /**
                  * @brief 
                  * We do one full loop and attempt to find
