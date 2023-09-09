@@ -36,6 +36,7 @@ _viwerr_list(
         }
         errno_update = true;
 
+        
 
         /**
          * @brief 
@@ -60,9 +61,11 @@ _viwerr_list(
                                 " VIWERR-INTERLNAL-CALL:\n"
                                 "viwerr_list: requires 1 of the following"
                                 " arguments:\n"
-                                "\tVIWERR_PUSH, \n"
-                                "\tVIWERR_POP,  \n"
-                                "\tVIWERR_FLUSH \n"
+                                "\tVIWERR_PUSH,  \n"
+                                "\tVIWERR_POP,   \n"
+                                "\tVIWERR_FLUSH, \n"
+                                "\tVIWERR_PRINT, \n"
+                                "\tVIWERR_OCCURED\n"
                                 " File: %s\n" 
                                 " Line: %d\n"
                                 "viwerr file fprintf called at:\n"
@@ -78,7 +81,9 @@ _viwerr_list(
                                 "following arguments one at time:\n"
                                 "\tVIWERR_PUSH, \n"
                                 "\tVIWERR_POP,  \n"
-                                "\tVIWERR_FLUSH \n"
+                                "\tVIWERR_FLUSH,\n"
+                                "\tVIWERR_PRINT, \n"
+                                "\tVIWERR_OCCURED\n"
                                 " File: %s\n" 
                                 " Line: %d\n"
                                 "viwerr file fprintf called at:\n"
@@ -228,12 +233,14 @@ _viwerr_list(
                 if(!strncmp(packages[index]->group, "errno", 5)
                 && !(arg & VIWERR_NO_ERRNO_TRIGGER)) {
                         errno = packages[index]->code;
-                        packages[index]->name = (char*)errnoname(
-                                packages[index]->code
-                        );
-                        packages[index]->message = strerror(
-                                packages[index]->code
-                        );
+                        if(package->name == NULL)
+                                packages[index]->name = (char*)errnoname(
+                                        packages[index]->code
+                                );
+                        if(package->message == NULL)
+                                packages[index]->message = strerror(
+                                        packages[index]->code
+                                );
                         viwerr_errno_ignore_new(true);
 
                 }
@@ -244,10 +251,6 @@ _viwerr_list(
                ||  arg & VIWERR_PRINT 
                ||  arg & VIWERR_OCCURED ) {
                 
-// #ifdef VIWERR_SUBSCRIPTION_ERRNO
-//                 if((*viwerr_errno_redefine(file,line)) == 0){};
-// #endif
-
                 /**
                  * @brief 
                  * We do one full loop and attempt to find
