@@ -13,7 +13,7 @@ OBJ = $(patsubst %.c,%.o,$(SRC))
 
 REMOVE =
 ifeq ($(OS),Windows_NT)
-    STATIC := $(addsuffix .lib, $(STATIC))
+    STATIC := $(addsuffix .a, $(STATIC))
     REMOVE = Get-ChildItem * -Include *.o, *.lib, *.exe -Recurse | Remove-Item
 else
     STATIC := $(addsuffix .a, $(STATIC))
