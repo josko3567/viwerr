@@ -517,16 +517,19 @@ typedef struct viwerr_package_st {
  *      @return Initalized viwerr_package* array. 
  *  
  */
+#ifdef __GNUC__
+__attribute__((constructor))
+#endif
 viwerr_package**
 _viwerr_list_init(
         void 
 );
 
 
-void
 #ifdef __GNUC__
 __attribute__((destructor))
 #endif
+void
 _viwerr_list_free(
     void 
 );
