@@ -681,7 +681,7 @@ _viwerr_list(
 #define VIWERR_ERRNO_FLUSH
 
 #define viwerr_occured_in_group(group) \
-        viwerr(VIWERR_OCCURED, &(viwerr_package){.group=group})
+        viwerr(VIWERR_OCCURED, &(viwerr_package){.group=(char*)group})
 
 /**
  * @fn @c viwerr_errno_redefine(2)
