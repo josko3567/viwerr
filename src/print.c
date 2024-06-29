@@ -1,22 +1,23 @@
 #include "../viwerr.h"
-void
-_viwerr_print_package(
-        viwerr_package * package)
-{
 
-        fprintf(stderr, "_____________________________________\n");
-        fprintf(stderr, "  VIWERR CAUGHT AN EXCEPTION: \n");
-        if( package->code == viwerr_package_empty.code )
-                fprintf(stderr, " \tcode     : %d \t[default]\n", 
-                        package->code);
-        else
-                fprintf(stderr, " \tcode     : %d\n", 
-                        package->code);              
-        fprintf(stderr, " \tname     : %s\n", package->name);
-        fprintf(stderr, " \tmessage  : %s\n", package->message);
-        fprintf(stderr, " \tgroup    : %s\n", package->group);
-        fprintf(stderr, " \tfile     : %s\n", package->file);
-        fprintf(stderr, " \tline     : %d\n", package->line);
-        fprintf(stderr, "_____________________________________\n\n");
+void _viwerr_print_package(viwerr_package* package) {
+
+    fprintf(stderr, "\n");
+    fprintf(
+        stderr,
+        "Inside of '%s', function '%s' on line '%d' returned the following "
+        "exception:\n",
+        package->file,
+        package->func,
+        package->line
+    );
+    fprintf(
+        stderr,
+        "\t%s: %s (code: %d%s)\n",
+        package->name,
+        package->message,
+        package->code,
+        package->code == viwerr_package_empty.code ? " [defualt]" : ""
+    );
 
 }

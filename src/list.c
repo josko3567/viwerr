@@ -2,11 +2,12 @@
 #include "../viwerr.h"
 viwerr_package*
 _viwerr_list(
-        int          arg, 
+        int          arg,
+        char*       func,
         const char *file,
         int         line,
         int          cnt,
-        ... ) 
+        ... )
 {
 
         viwerr_package **packages = _viwerr_list_init();
@@ -24,7 +25,7 @@ _viwerr_list(
         };
 
         /**
-         * @brief 
+         * @brief
          * Update once upon entering, viwerr_errno_redefine
          * calls _viwerr_list in of it self so we have to
          * be vary not to stack overflow by accident.
@@ -32,17 +33,17 @@ _viwerr_list(
         static bool errno_update = true;
         if(errno_update == true && !(arg & VIWERR_NO_ERRNO_TRIGGER)){
                 errno_update = false;
-                viwerr_errno_redefine(file,line);
+                viwerr_errno_redefine(func,file,line);
         }
         errno_update = true;
 
-        
+
 
         /**
-         * @brief 
+         * @brief
          * Evaluate argument by counting the arguments
          * that cannot coexist. If 0 then there is nothing to do.
-         * If 1 then everything is aokay. If 2 or more then 
+         * If 1 then everything is aokay. If 2 or more then
          * we have to many arguments.
          */
         int evalarg = _viwerr_popcnt(
@@ -66,7 +67,7 @@ _viwerr_list(
                                 "\tVIWERR_FLUSH, \n"
                                 "\tVIWERR_PRINT, \n"
                                 "\tVIWERR_OCCURED\n"
-                                " File: %s\n" 
+                                " File: %s\n"
                                 " Line: %d\n"
                                 "viwerr file fprintf called at:\n"
                                 " %d : %s\n",
@@ -77,14 +78,14 @@ _viwerr_list(
 
                         fprintf(stderr,
                                 " VIWERR-INTERLNAL-CALL:\n"
-                                "viwerr_list: viwerr only accepts the" 
+                                "viwerr_list: viwerr only accepts the"
                                 "following arguments one at time:\n"
                                 "\tVIWERR_PUSH, \n"
                                 "\tVIWERR_POP,  \n"
                                 "\tVIWERR_FLUSH,\n"
                                 "\tVIWERR_PRINT, \n"
                                 "\tVIWERR_OCCURED\n"
-                                " File: %s\n" 
+                                " File: %s\n"
                                 " Line: %d\n"
                                 "viwerr file fprintf called at:\n"
                                 " %d : %s\n",
@@ -111,18 +112,18 @@ _viwerr_list(
         if( arg & VIWERR_PUSH ) {
 
                 /**
-                 * @brief 
+                 * @brief
                  * Load 2 packages from va_list.
                  * Overwrite flags from the first package
                  * with flags from the second package only
                  * if they are actual valid flags (0 or 1).
-                 * If they are not valid flags we keep whatever 
+                 * If they are not valid flags we keep whatever
                  * the first package already had it set to prior
                  * to the function call.
                  */
                 if( cnt < 1 ) {
 
-                        fprintf(stderr, 
+                        fprintf(stderr,
                                 "viwerr: VIWERR_PUSH"
                                 " requires 1 argument:\n"
                                 "        "
@@ -150,7 +151,7 @@ _viwerr_list(
 
                 if( package == NULL ) {
 
-                        fprintf(stderr, 
+                        fprintf(stderr,
                                 "viwerr: VIWERR_PUSH"
                                 " requires 1 NON NULL argument:\n"
                                 "        "
@@ -168,11 +169,11 @@ _viwerr_list(
 
                 }
 
-                int index = (packageinfo.newest + 1) 
+                int index = (packageinfo.newest + 1)
                             % VIWERR_PACKAGE_AMOUNT;
-                
+
                 /**
-                 * @brief 
+                 * @brief
                  * Copy into the package at index fully.
                  * If varadict package contains NULL pointers
                  * we write a empty string to the corresponding
@@ -180,21 +181,21 @@ _viwerr_list(
                  * If varadict package contains negative integers
                  * we clamp their values to 0.
                  */
-                packages[index]->code = 
+                packages[index]->code =
                         package->code != viwerr_package_new.code ?
                                 package->code : viwerr_package_new.code;
 
-                packages[index]->line = 
-                        line != viwerr_package_new.line ? 
+                packages[index]->line =
+                        line != viwerr_package_new.line ?
                                 line : viwerr_package_new.line;
 
                 snprintf(packages[index]->name,
                         VIWERR_NAME_SIZE, "%s",
-                        package->name != NULL ? 
-                                package->name : 
+                        package->name != NULL ?
+                                package->name :
                                 viwerr_package_new.name
                 );
-                        
+
                 snprintf(packages[index]->message,
                         VIWERR_MESSAGE_SIZE, "%s",
                         package->message != NULL ?
@@ -216,19 +217,26 @@ _viwerr_list(
                                 viwerr_package_new.file
                 );
 
-                packages[index]->flag.returned = 
+                snprintf(packages[index]->func,
+                        VIWERR_FILENAME_SIZE, "%s",
+                        func != NULL ?
+                                func :
+                                viwerr_package_new.func
+                );
+
+                packages[index]->flag.returned =
                         viwerr_package_new.flag.returned;
-                packages[index]->flag.printed  = 
+                packages[index]->flag.printed  =
                         viwerr_package_new.flag.printed;
-                packages[index]->flag.contains = 
+                packages[index]->flag.contains =
                         viwerr_package_new.flag.contains;
 
                 packageinfo.newest = index;
-                packageinfo.amount += 
+                packageinfo.amount +=
                         (size_t)packageinfo.amount >= VIWERR_PACKAGE_AMOUNT ?
                                 0 : 1;
 
-                
+
 #ifdef VIWERR_SUBSCRIPTION_ERRNO
                 if(!strncmp(packages[index]->group, "errno", 5)
                 && !(arg & VIWERR_NO_ERRNO_TRIGGER)) {
@@ -247,12 +255,12 @@ _viwerr_list(
 #endif
                 return package;
 
-        } else if( arg & VIWERR_POP  
-               ||  arg & VIWERR_PRINT 
+        } else if( arg & VIWERR_POP
+               ||  arg & VIWERR_PRINT
                ||  arg & VIWERR_OCCURED ) {
-                
+
                 /**
-                 * @brief 
+                 * @brief
                  * We do one full loop and attempt to find
                  * the newest unpoped package.
                  */
@@ -260,7 +268,7 @@ _viwerr_list(
                 int index = packageinfo.newest;
 
                 /**
-                 * @brief 
+                 * @brief
                  * Filter if we combined VIWERR_POP with
                  * one of the arguments from the VIWERR_BY family.
                  */
@@ -270,18 +278,18 @@ _viwerr_list(
                  * @brief
                  * If we contiant one of the following arguments
                  * we must check if we have a package passed
-                 * through VA_ARG. 
+                 * through VA_ARG.
                  */
-                if( _viwerr_popcnt((long)(arg & 
+                if( _viwerr_popcnt((long)(arg &
                         (VIWERR_BY_CODE|
                          VIWERR_BY_NAME|
                          VIWERR_BY_MESSAGE|
-                         VIWERR_BY_GROUP)      
+                         VIWERR_BY_GROUP)
                 ))) {
 
                         if( cnt < 1 ) {
 
-                                fprintf(stderr, 
+                                fprintf(stderr,
                                 "viwerr: VIWERR_POP with a"
                                 " argument from the"
                                 " VIWERR_BY... family"
@@ -309,7 +317,7 @@ _viwerr_list(
 
                         if( filter == NULL ) {
 
-                                fprintf(stderr, 
+                                fprintf(stderr,
                                 "viwerr: VIWERR_POP with a"
                                 " argument from the"
                                 " VIWERR_BY... family"
@@ -331,7 +339,7 @@ _viwerr_list(
                 }
 
                 /**
-                 * @brief 
+                 * @brief
                  * Loop through the entire list of packages
                  * until we find one that fits the criteria.
                  */
@@ -340,17 +348,17 @@ _viwerr_list(
                         viwerr_package * package = packages[index];
 
                         /**
-                         * @brief 
+                         * @brief
                          * Check if package is empty and has not been
                          * returned!
                          */
-                        if( package->flag.contains 
+                        if( package->flag.contains
                                 == viwerr_package_new.flag.contains
                         &&  package->flag.returned
                                 == viwerr_package_new.flag.returned ) {
 
                                 /**
-                                 * @brief 
+                                 * @brief
                                  * Evaluate if package fits criteria
                                  * if we have a VIWERR_BY... argument
                                  * with _viwerr_filter_by(...).
@@ -371,10 +379,10 @@ _viwerr_list(
                                         break;
 
                                 }
-                                
+
                         }
-                        
-                        index = (index - 1) 
+
+                        index = (index - 1)
                                 % VIWERR_PACKAGE_AMOUNT;
 
 
@@ -386,7 +394,7 @@ _viwerr_list(
                  * Exit if no package was found.
                  */
                 if( newest_package == NULL ) {
-      
+
                         return NULL;
 
                 };
@@ -397,7 +405,7 @@ _viwerr_list(
                  * everything as is and return the package.
                  */
                 if( arg & VIWERR_OCCURED ) {
-                
+
                         return newest_package;
 
                 }
@@ -410,37 +418,38 @@ _viwerr_list(
                  */
                 if( arg & VIWERR_PRINT ){
 
+                        fprintf(stderr, "\nviwerr: an exception was caught!");
                         _viwerr_print_package(newest_package);
                         newest_package->flag.printed =
                                 viwerr_package_used.flag.printed;
 
                 }
                 /**
-                 * @brief 
+                 * @brief
                  * Update static information and send package.
                  * VIWERR_PRINT & VIWERR_POP
                  */
-                newest_package->flag.returned = 
+                newest_package->flag.returned =
                         viwerr_package_used.flag.returned;
-                packageinfo.amount -=   
+                packageinfo.amount -=
                         packageinfo.amount <= 0 ? 0 : 1;
                 packageinfo.newest = packageinfo.amount <= 0 ?
                         0 : (index - 1) % VIWERR_PACKAGE_AMOUNT;
-                
+
                 return newest_package;
-                
+
 
         } else if( arg & VIWERR_FLUSH ) {
 
                 /**
-                 * @brief 
+                 * @brief
                  * Amount of packages that were cleared.
                  */
                 int cleared = 0;
                 int index = packageinfo.newest;
 
                 /**
-                 * @brief 
+                 * @brief
                  * Filter if we combined VIWERR_FLUSH with
                  * one of the arguments from the VIWERR_BY family.
                  */
@@ -449,18 +458,18 @@ _viwerr_list(
                  * @brief
                  * If we contiant one of the following arguments
                  * we must check if we have a package passed
-                 * through VA_ARG. 
+                 * through VA_ARG.
                  */
-                if( _viwerr_popcnt((long)(arg & 
+                if( _viwerr_popcnt((long)(arg &
                         (VIWERR_BY_CODE|
                          VIWERR_BY_NAME|
                          VIWERR_BY_MESSAGE|
-                         VIWERR_BY_GROUP)      
+                         VIWERR_BY_GROUP)
                 ))) {
 
                         if( cnt < 1 ) {
 
-                                fprintf(stderr, 
+                                fprintf(stderr,
                                 "viwerr: VIWERR_FLUSH with a"
                                 " argument from the"
                                 " VIWERR_BY... family"
@@ -488,7 +497,7 @@ _viwerr_list(
 
                         if( filter == NULL ) {
 
-                                fprintf(stderr, 
+                                fprintf(stderr,
                                 "viwerr: VIWERR_FLUSH with a argument"
                                 " from the VIWERR_BY... family"
                                 " requires 1 NON NULL argument:\n"
@@ -509,7 +518,7 @@ _viwerr_list(
                 }
 
                 /**
-                 * @brief 
+                 * @brief
                  * Loop through the entire list of packages
                  * until we find one that fits the criteria.
                  */
@@ -517,11 +526,11 @@ _viwerr_list(
 
                         viwerr_package * package = packages[index];
 
-                        if( package->flag.contains 
+                        if( package->flag.contains
                                 == viwerr_package_new.flag.contains ){
-                                
+
                                 /**
-                                 * @brief 
+                                 * @brief
                                  * Evaluate if package fits criteria
                                  * if we have a VIWERR_BY... argument
                                  * with _viwerr_filter_by(...).
@@ -534,7 +543,7 @@ _viwerr_list(
                                                 arg, file, line,
                                                 package, filter
                                         );
-                                        
+
                                 }
 
                                 if( eval == true ) {
@@ -546,13 +555,13 @@ _viwerr_list(
 
                         }
 
-                        index = (index - 1) 
+                        index = (index - 1)
                                 % VIWERR_PACKAGE_AMOUNT;
 
                 } while (index != packageinfo.newest);
 
                 /**
-                 * @brief 
+                 * @brief
                  * Update static information and send package.
                  */
                 packageinfo.amount -= cleared;

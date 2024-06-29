@@ -176,14 +176,14 @@ extern "C" {
 #define VIWERR_SUBSCRIPTION_ERRNO
 
 /**
- * @brief 
+ * @brief
  * https://stackoverflow.com/questions/4421681/how-to-
  * count-the-number-of-arguments-passed-to-a-function-
  * that-accepts-a-variabl
- * 
+ *
  * This is the only thing i have no idea how to explain other
  * than black magic & it works.
- * 
+ *
  * After using this argument counter ive come to realize that
  * it just counts the , symbols xD.
  */
@@ -224,73 +224,73 @@ extern "C" {
           9,  8,  7,  6,  5,  4,  3,  2,  1,  0
 
 /**
- * @brief 
+ * @brief
  * Exit code if constructor fails to allocate memory for
  * error packages.
  * We don't allocate memory when we place packages into the
  * list because viwerr could potentially throw ENOMEM if the
  * program ran out of memory prior to the call.
- * 
+ *
  */
 #define VIWERR_EXIT_CODE 78
 
 /**
- * @brief 
+ * @brief
  * Depending on the function we use it in this constant
  * will do something different.
- * 
+ *
  *      @tparam @c _viwerr_list(4,5)
  *      In this function VIWERR_PUSH indicated that we need to
  *      place the interlinked package into the array.
  *      (interlinked: passed together into the function).
- *      
+ *
  *      @tparam @c viwerr(1,2)
  *      In this function VIWERR_PUSH and its interlinked package are both
- *      passed to _viwerr_list(4,5). (interlinked: passed together 
+ *      passed to _viwerr_list(4,5). (interlinked: passed together
  *      into the function).
- *      
- *      @param @b _viwerr_list(VIWERR_PUSH,&(viwerr_package){...}) 
- *      
+ *
+ *      @param @b _viwerr_list(VIWERR_PUSH,&(viwerr_package){...})
+ *
  *      @param @b viwerr(VIWERR_PUSH,&(viwerr_package){...})
- * 
+ *
  */
 #define VIWERR_PUSH          1<<0
 
 /**
- * @brief 
+ * @brief
  * For @b viwerr(1,2) only.
  * Acts exactly as VIWERR_POP but other than returning a package it also
  * prints it out to stderr.
- * 
+ *
  */
 #define VIWERR_PRINT         1<<2
 
 /**
- * @brief 
+ * @brief
  * Depending on the function we use it in this constant
  * will do something different.
- * 
+ *
  *      @tparam @c _viwerr_list(4,5)
  *      In this function VIWERR_POP returns a package, depending on
  *      if any other arguments were included the package returned may
  *      vary.
- *      
+ *
  *      @tparam @c viwerr(1,2)
  *      Just a direct call to _viwerr_list(4,5) with the same parameters.
- *      
+ *
  *      @param @b _viwerr_list(VIWERR_POP,NULL);
- *      
+ *
  *      @param @b _viwerr_list(VIWERR_POP|VIWERR_BY...,&(viwerr_package){...});
- *     
+ *
  *      @param @b viwerr(VIWERR_POP,NULL);
- *      
+ *
  *      @param @b viwerr(VIWERR_POP|VIWERR_BY...,&(viwerr_package){...});
- * 
+ *
  */
 #define VIWERR_POP           1<<3
 
 /**
- * @brief 
+ * @brief
  * For @b viwerr(1,2) only.
  * Acts exactly as VIWERR_POP but other than returning a package we
  * flush all packages that fit the criteria, that being all if no
@@ -313,14 +313,14 @@ extern "C" {
 #define VIWERR_BY_GROUP      1<<14
 
 /**
- * @brief 
+ * @brief
  * Remove extra call in _viwerr_list() to viwerr_errno_redefine()
  * if we are calling from viwerr_errno_redefine()
  */
 #define VIWERR_NO_ERRNO_TRIGGER 1<<15
 
 /**
- * @brief 
+ * @brief
  * Change the flags of the package.
  * Used in combination with @c VIWERR_PUSH
  * in @c _viwerr_list(1,2).
@@ -328,8 +328,8 @@ extern "C" {
  */
 
 /**
- * @brief 
- * Return only the adress of the package without 
+ * @brief
+ * Return only the adress of the package without
  * messing around with its flags.
  * Used in combination with @c VIWERR_POP
  * in @c _viwerr_list(1,2)
@@ -338,7 +338,7 @@ extern "C" {
 #define VIWERR_ADRESS_ONLY   1<<16
 
 /**
- * @brief 
+ * @brief
  * Amount of packages that are constructed when
  * the program is initalized.
  */
@@ -346,7 +346,7 @@ extern "C" {
 
 /**
  * \ingroup String_Sizes
- * @brief 
+ * @brief
  * Maximu size for name, message and
  * group string. Any string passed through
  * viwerr(VIWERR_PUSH, ...) will fully copy the
@@ -357,61 +357,62 @@ extern "C" {
 #define VIWERR_MESSAGE_SIZE  (size_t)256
 #define VIWERR_GROUP_SIZE    (size_t)64
 #define VIWERR_FILENAME_SIZE (size_t)256
+#define VIWERR_FUNCTION_SIZE (size_t)256
 /**
- * @} 
+ * @}
  */
 
 
 /**
  * @struct  @c viwerr_package_st
  * @typedef @c viwerr_package
- *      
+ *
  *      @brief Package that will contain our custom errors
  *      for safe keeping until we print them or return them
  *      via. viwerr(...).
- * 
+ *
  *      @tparam @b code
- *      Error code that was passed.     
- * 
- *      @tparam @b name 
+ *      Error code that was passed.
+ *
+ *      @tparam @b name
  *      Pointer to a string that contains our error name.
- * 
+ *
  *      @tparam @b message
  *      Pointer to a string that contains our error description.
- *      
+ *
  *      @tparam @b group
  *      Pointer to a string that indicates to what group this
  *      error belongs to, I usualy just place the function
  *      name inside.
- * 
+ *
  *      @tparam @b file
  *      Pointer to the value of the macro __FILE__.
- * 
+ *
  *      @tparam @b line
  *      Value returned by the macro __LINE__.
- *      
+ *
  *      @tparam @a flag.
  *      Flags...
- * 
+ *
  *              @tparam @b flag.returned
  *              Flag that indicates if the error inside the package
  *              was ever returned by viwerr(...). Set to 1
  *              upon creation, if the package gets returned by
  *              viwerr(...) or removal of the error from the package,
- *              set to 0 when a new error is placed inside. 
- *   
+ *              set to 0 when a new error is placed inside.
+ *
  *              @tparam @b flag.printed
  *              Flag that indicates if the error isnide the package
  *              was ever printed by viwerr(...). Set to 1 upon
- *              creation or printing/removal, set to 0 when a new 
+ *              creation or printing/removal, set to 0 when a new
  *              error is placed inside the package.
- * 
+ *
  *              @tparam @b flag.contains
  *              Indicates if the package contains a valid error value.
  *              Set to 0 upon creation or removal an error from
  *              the package, set to 1 when placing a error inside
  *              the package.
- * 
+ *
  */
 typedef struct viwerr_package_st {
 
@@ -421,10 +422,11 @@ typedef struct viwerr_package_st {
         char *group;
 
         /**
-         * @brief 
+         * @brief
          * Obtained when calling viwerr secretly :p.
          */
         char *file;
+        char *func;
         int   line;
 
         struct {
@@ -445,14 +447,14 @@ typedef struct viwerr_package_st {
  * errors other than syntax errors. If the computer runs
  * out of memory and we try to report it by creating
  * a new package it's not gonna go well so we have to
- * use a package from a predefined list of packages. 
+ * use a package from a predefined list of packages.
  */
 #define VIWERR_MEMORY_USED                                            \
         (VIWERR_NAME_SIZE + VIWERR_MESSAGE_SIZE + VIWERR_GROUP_SIZE + \
         sizeof(viwerr_package)) * VIWERR_PACKAGE_AMOUNT
 
 /**
- * @brief 
+ * @brief
  * Predefined values for a empty viwerr_package.
  */
 #define viwerr_package_empty (viwerr_package){ \
@@ -461,6 +463,7 @@ typedef struct viwerr_package_st {
         .message = NULL,                       \
         .group   = NULL,                       \
         .file    = NULL,                       \
+        .func    = NULL,                       \
         .line    = INT_MIN,                    \
         .flag.returned = 1,                    \
         .flag.printed  = 1,                    \
@@ -468,7 +471,7 @@ typedef struct viwerr_package_st {
 }
 
 /**
- * @brief 
+ * @brief
  * Predefined values for a viwerr_package that was
  * just created and was not returned via VIWERR_POP.
  */
@@ -478,6 +481,7 @@ typedef struct viwerr_package_st {
         .message = NULL,                     \
         .group   = NULL,                     \
         .file    = NULL,                     \
+        .func    = NULL,                     \
         .line    = 0,                        \
         .flag.returned = 0,                  \
         .flag.printed  = 0,                  \
@@ -485,7 +489,7 @@ typedef struct viwerr_package_st {
 }
 
 /**
- * @brief 
+ * @brief
  * Predefined values for a viwerr_package that was
  * gotten via VIWERR_POP & had its flag.returned
  * & flag.printed values set to 1.
@@ -496,6 +500,7 @@ typedef struct viwerr_package_st {
         .message = NULL,                      \
         .group   = NULL,                      \
         .file    = NULL,                      \
+        .func    = NULL,                      \
         .line    = 0,                         \
         .flag.returned = 1,                   \
         .flag.printed  = 1,                   \
@@ -504,25 +509,25 @@ typedef struct viwerr_package_st {
 
 /**
  * @fn @c _viwerr_list_init(0)
- * 
+ *
  *      @brief Initalize a viwerr_package array with
  *      default values & return it.
- * 
- *      
+ *
+ *
  *      @throw @b ENOMEM - Exits program forcefully if upon startup
- *                      all memory spaces have already been 
+ *                      all memory spaces have already been
  *                      occupied.
- * 
- * 
- *      @return Initalized viwerr_package* array. 
- *  
+ *
+ *
+ *      @return Initalized viwerr_package* array.
+ *
  */
 #ifdef __GNUC__
 __attribute__((constructor))
 #endif
 viwerr_package**
 _viwerr_list_init(
-        void 
+        void
 );
 
 
@@ -531,55 +536,55 @@ __attribute__((destructor))
 #endif
 void
 _viwerr_list_free(
-    void 
+    void
 );
 
 /**
  * @fn @c _viwerr_popcnt(1)
- *      
+ *
  *      @brief Simple bit counter.
- *      
- * 
+ *
+ *
  *      @param @b arg
- *                Integer value we count bits from.        
- *  
- * 
- *      @returns Count of bits inside @b arg that are 
- *      set to 1. 
+ *                Integer value we count bits from.
+ *
+ *
+ *      @returns Count of bits inside @b arg that are
+ *      set to 1.
  *
  */
 long _viwerr_popcnt(
-        long arg 
+        long arg
 );
 
 /**
  * @fn @c _viwerr_filter_by(3)
- * 
- *      @brief 
+ *
+ *      @brief
  *      Filter a package by the filters arguments
  *      VIWERR_BY...
- * 
- * 
- *      @param @b arg 
+ *
+ *
+ *      @param @b arg
  *                Arguments that contains one of the
  *                arguments from the VIWERR_BY... family.
- * 
- *      @param @b package 
+ *
+ *      @param @b package
  *                Package we will compare/filter with our
  *                filter package.
- *                
- *      @param @b filter 
+ *
+ *      @param @b filter
  *                Error package from which we take certaint parts
  *                from to use as a filter.
- * 
- * 
- *      @throw Nothing. 
- * 
- * 
- *      @return Integer boolean value of 0 or 1 that will 
- *      tell us if the package passed throught the filter. 
- * 
- * 
+ *
+ *
+ *      @throw Nothing.
+ *
+ *
+ *      @return Integer boolean value of 0 or 1 that will
+ *      tell us if the package passed throught the filter.
+ *
+ *
  */
 bool
 _viwerr_filter_by(
@@ -587,28 +592,28 @@ _viwerr_filter_by(
         const char * file,
         int line,
         viwerr_package * package,
-        viwerr_package * filter 
+        viwerr_package * filter
 );
 
 
 /**
  * @fn @c _viwerr_clear_package(1)
- * 
- *      @brief Set package variables to that of @b viwerr_package_empty. 
- *      
- * 
- *      @param @b package 
+ *
+ *      @brief Set package variables to that of @b viwerr_package_empty.
+ *
+ *
+ *      @param @b package
  *                Package to reset.
- *      
- * 
+ *
+ *
  *      @throw Nothing.
- *      
- * 
+ *
+ *
  *      @returns Nothing.
- * 
+ *
  */
-void _viwerr_clear_package( 
-        viwerr_package * package 
+void _viwerr_clear_package(
+        viwerr_package * package
 );
 
 /**
@@ -621,12 +626,12 @@ _viwerr_print_package(
 
 /**
  * @fn @c _viwerr_list(4,5)
- * 
- *      @brief 
+ *
+ *      @brief
  *      Sort of interface function through which we interact
  *      with the error package array.
- *      
- *      @param @b arg 
+ *
+ *      @param @b arg
  *                Arguments passed through that will indicate
  *                what we want to do to the list.
  *                Possible arguments are:
@@ -635,29 +640,31 @@ _viwerr_print_package(
  *                VIWERR_EDIT, VIWERR_FLUSH, VIWERR_POP & VIWERR_PUSH.
  *                      The rest only matter if the prior arguments say
  *                      that they do.
- *                
- *              
+ *
+ *
  */
 viwerr_package*
 _viwerr_list(
-        int          arg, 
+        int          arg,
+        char*       func,
         const char *file,
         int         line,
         int          cnt,
-        ... 
-); 
+        ...
+);
 
 /**
  * @def @a viwerr_list(2)
- *      
+ *
  *      @brief _viwerr_list(4,5) with argument 'cnt' counted by
  *      @a VIWERR_VARCNT_NARG(1). Also automatically inserts the
  *      __FILE__ and __LINE__ into file and line arguments.
- * 
+ *
  */
 #define viwerr(arg, ...)                         \
         _viwerr_list(                            \
-                arg/*|(errno<<64)*/,                 \
+                arg/*|(errno<<64)*/,             \
+                (char*)__func__,                 \
                 __FILE__,                        \
                 __LINE__,                        \
                 VIWERR_VARCNT_NARG(__VA_ARGS__), \
@@ -665,14 +672,15 @@ _viwerr_list(
 
 /**
  * @def @a viwerr_file(4)
- *      
+ *
  *      @brief viwerr_file(4) is viwerr(2) with file and line
  *      being insertable.
- * 
+ *
  */
-#define viwerr_file(arg, file, line, ...)        \
+#define viwerr_file(arg, func, file, line, ...)  \
         _viwerr_list(                            \
                 arg,                             \
+                (char*)func,                     \
                 file,                            \
                 line,                            \
                 VIWERR_VARCNT_NARG(__VA_ARGS__), \
@@ -680,25 +688,25 @@ _viwerr_list(
 
 #define VIWERR_ERRNO_FLUSH
 
-#define viwerr_occured_in_group(group) \
-        viwerr(VIWERR_OCCURED, &(viwerr_package){.group=(char*)group})
+#define viwerr_occured_in_group(gr) \
+        (viwerr(VIWERR_OCCURED, &(viwerr_package){.group=(char*)gr}) ? true : false)
 
 /**
  * @fn @c viwerr_errno_redefine(2)
- *      
+ *
  *      @brief This function allows viwerr to be updated
  *      on the state of errno every time errno is called.
  *      Due to the C preprocessor reading files line by line,
  *      the errno calls inside this function are of the orginal
  *      errno from <errno.h>. Afterwards errno is redefined
  *      to call this function instead of whatever was
- *      inside of errno before. Due to this function returning the 
+ *      inside of errno before. Due to this function returning the
  *      original errno macro, we can use the normal errno
  *      syntax to read and write values to errno.
  *      viwerr is kind of late to the party when it comes to
  *      reading values from errno because we can't make a macro
  *      that keeps the original syntax and also calls a function
- *      after the errno value was called for 
+ *      after the errno value was called for
  *      reading or writing. Because of that
  *      viwerr is one read behind errno, which means if errno
  *      is changed viwerr won't be notified until errno is called
@@ -707,20 +715,21 @@ _viwerr_list(
  *      the latency but in the fact that we cannot determine
  *      on any call to errno wether the value was written to or
  *      read from. Because of that if we have multiple functions
- *      setting errno to the same value we will only store the 
+ *      setting errno to the same value we will only store the
  *      errno value from the first function that set it to that
  *      particular value.
- * 
+ *
  *      @returns &(errno) <- errno before it was redefined.
- * 
+ *
  */
 int * viwerr_errno_redefine(
-        const char * file, 
-        int line 
+        char*        func,
+        const char * file,
+        int line
 );
 
 /**
- * @brief 
+ * @brief
  * If viwerr(VIWERR_PUSH, ...) pushed a errno value
  * viwerr_errno_redefine will ignore the new value as
  * it is already written.
@@ -734,7 +743,7 @@ char const * errnoname(int errno_);
 #ifndef REMOVE_ERRNO_REDEFINE
 #if defined(VIWERR_SUBSCRIPTION_ERRNO) && !defined(VIWERR_REMOVE_FOR_OBJ_COMP)
         #undef errno
-        #define errno (*viwerr_errno_redefine(__FILE__,__LINE__))
+        #define errno (*viwerr_errno_redefine((char*)___func__,__FILE__,__LINE__))
 #endif /** @c VIWERR_SUBSCRIPTION_ERRNO */
 #endif
 

@@ -23,18 +23,21 @@ bool viwerr_errno_ignore_new(
 }
 
 int * viwerr_errno_redefine(
-        const char * file, 
+        char*        func,
+        const char * file,
         int line )
 {
 
         static struct {
 
                 int code;
+                char * func;
                 char * file;
                 int line;
 
         } previous = {
                 .code = 0,
+                .func = (char*)"",
                 .file = (char*)"",
                 .line = 0
         };
@@ -47,25 +50,26 @@ int * viwerr_errno_redefine(
          * when we redefine errno every call of errno that is:
          * 1. Not from a function defined in a static or dynamic
          * library,
-         * 2. In a file or function included/defined after we 
+         * 2. In a file or function included/defined after we
          * include <viwerr.h>;
          * will use the new version that notifies viwerr to any
          * errors that may have occured every time it is called
-         * either for reading or writing. 
+         * either for reading or writing.
          */
         if(errno == 0
         || errno == previous.code) {
-                
+
                 previous.code = errno;
                 previous.file = (char*)file;
+                previous.func = func;
                 previous.line = line;
                 return &errno;
-        
+
         }
 
         if(viwerr_errno_ignore_new(false) != true){
-                viwerr_file(VIWERR_PUSH|VIWERR_NO_ERRNO_TRIGGER, 
-                (char*)previous.file, previous.line, &(viwerr_package){
+                viwerr_file(VIWERR_PUSH|VIWERR_NO_ERRNO_TRIGGER,
+                (char*)previous.func, previous.file, previous.line, &(viwerr_package){
                         .code = errno,
                         .name = (char*)errnoname(errno),
                         .message = strerror(errno),
